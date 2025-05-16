@@ -1,8 +1,9 @@
 import dropbox
 import io
+import  os
 import IPython.display as ipd
 from api import api_create, folder_path
-
+import json
 # Thay token bằng access token bạn vừa tạo
 ACCESS_TOKEN = api_create()
 
@@ -22,9 +23,11 @@ def list_and_print_preview_links(folder_path):
             return
 
         # Chỉ lấy 2 file đầu
-        wav_files = wav_files[:2]
+        #wav_files = wav_files[:2]
 
         print("📃 Danh sách 2 file .wav đầu tiên và link preview:")
+        arr = []
+        a=0
         for file in wav_files:
             try:
                 # Tạo hoặc lấy shared link
@@ -34,28 +37,34 @@ def list_and_print_preview_links(folder_path):
                 else:
                     shared_link_metadata = dbx.sharing_create_shared_link_with_settings(file.path_lower)
                     preview_link = shared_link_metadata.url
+                arr.append(str(preview_link))
+                #print(f"- {file.name}: {preview_link}")
+                print(a)
+                a+=1
 
-                print(f"- {file.name}: {preview_link}")
             except dropbox.exceptions.ApiError as e:
                 print(f"Lỗi lấy shared link cho {file.name}: {e}")
 
         # Lấy link preview của file đầu tiên trong 2 file này
-        first_file = wav_files[0]
-        first_shared_links = dbx.sharing_list_shared_links(path=first_file.path_lower, direct_only=True).links
-        if first_shared_links:
-            first_link = first_shared_links[0].url
-        else:
-            first_link = dbx.sharing_create_shared_link_with_settings(first_file.path_lower).url
-
-        print(f"\n🔗 Link preview file đầu tiên: {first_link}")
-        return first_link
-
+        # first_file = wav_files[0]
+        # first_shared_links = dbx.sharing_list_shared_links(path=first_file.path_lower, direct_only=True).links
+        # if first_shared_links:
+        #     first_link = first_shared_links[0].url
+        # else:
+        #     first_link = dbx.sharing_create_shared_link_with_settings(first_file.path_lower).url
+        #
+        # print(f"\n🔗 Link preview file đầu tiên: {first_link}")
+        # return first_link
+        return arr
     except dropbox.exceptions.ApiError as e:
         print("Lỗi API Dropbox:", e)
 
 
 url = list_and_print_preview_links(FOLDER_PATH)
+# Lưu vào file
+with open("Data/my_list.json", "w") as f:
+    json.dump(url, f)
+os.chmod("Data/my_list.json", 0o444)
+print(url)
 
 
-if url:
-    webbrowser.open(url)

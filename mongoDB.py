@@ -41,7 +41,9 @@ if __name__ == "__main__":
     audio_bytes = io.BytesIO(response.content)
 
     m = mfcc(audio_bytes)
+    audio_bytes = io.BytesIO(response.content)
     e = energy_contour(audio_bytes)
+    audio_bytes = io.BytesIO(response.content)
     formant = formant_f1_f2(audio_bytes)
 
     audio_bytes = io.BytesIO(response.content)
